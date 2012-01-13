@@ -1,21 +1,14 @@
-require "tinder"
-
-require "scamp/adapter"
-require "scamp/message"
-
-require "scamp-campfire-adapter/version"
-require "scamp-campfire-adapter/channel"
-
 class Scamp
   module Campfire
     class Adapter < Scamp::Adapter
       def connect!
         rooms.each do |room|
           room.listen do |message|
-            msg = Scamp::Message.new self, :body => message[:body],
-                                           :room => room,
-                                           :user => message[:user],
-                                           :type => message[:type]
+            msg = Scamp::Campfire::Message.new self, :body => message[:body],
+                                                     :room => room,
+                                                     :user => message[:user],
+                                                     :type => message[:type]
+
             channel = Scamp::Campfire::Channel.new self, msg
 
             push [channel, msg]

@@ -15,15 +15,16 @@ Scamp.new do |bot|
 
   bot.match /^come to the pub (?<name>\w+)/ do |channel, msg|
     channel.say "ROGER DODGER!"
-    channel.reply "ON MY WAY! #{msg.name}"
+    channel.reply "ON MY WAY! #{name}"
     channel.paste <<-STR
       bot.match /^come to the pub (?<name>\w+)/ do |channel, msg|
         channel.say "ROGER DODGER!"
-        channel.reply "ON MY WAY! #{msg.name}"
+        channel.reply "ON MY WAY! #{name}"
         channel.nyan
       end
     STR
-    channel.play :ohyeah
     channel.nyan
   end
+
+  bot.connect!
 end
