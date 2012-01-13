@@ -7,7 +7,7 @@ This is the campfire adapter for Scamp, the bot framework
 Put this in your gemfile!
 
 ``` ruby
-  gem 'scamp-campfire-adapter'
+  gem 'scamp-campfire'
 ```
 
 
