@@ -1,12 +1,40 @@
 require 'spec_helper'
 
-require 'spec_helper'
-
 describe Scamp::Campfire::Message do
   describe ".valid?" do
+    let(:adapter) { Scamp::Campfire::Adapter.new stub }
     let(:room) { stub(:id => 1234, :name => "Room") }
     let(:user) { stub(:id => 1234, :name => "User") }
-    let(:message) { Scamp::Campfire::Message.new(stub, :body => "Hello", :room => room, :user => user) }
+    let(:body) { "Hello" }
+    let(:message) { Scamp::Campfire::Message.new(adapter, :body => body, :room => room, :user => user) }
+
+    describe "ignore messages from self" do
+      let(:adapter) { Scamp::Campfire::Adapter.new stub, :ignore_self => true }
+
+      context "message from self" do
+        before do
+          adapter.stub(:user).and_return(stub(:id => 1234, :name => "User"))
+        end
+
+        it "should not be valid" do
+          message.valid?().should be_false
+        end
+      end
+
+      context "message from another user" do
+        before do
+          adapter.stub(:user).and_return(stub(:id => 5678, :name => "Another User"))
+        end
+
+        it "should be valid" do
+          message.valid?().should be_true
+        end
+      end
+    end
+
+    describe "required prefix" do
+
+    end
 
     describe "matching rooms" do
       describe "on no room condition" do

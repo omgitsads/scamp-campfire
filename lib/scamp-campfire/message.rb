@@ -4,7 +4,7 @@ class Scamp
   module Campfire
     class Message < Scamp::Message
       def valid?(conditions={})
-        room_match?(conditions[:room]) && user_match?(conditions[:user])
+        !ignore_message? && room_match?(conditions[:room]) && user_match?(conditions[:user])
       end
 
       private
@@ -30,6 +30,13 @@ class Scamp
           else
             return user.name.downcase == condition.to_s.downcase
           end
+        end
+
+        def ignore_message?
+          if adapter.ignore_self?
+            return user.id == adapter.user.id
+          end
+          return false
         end
     end
   end

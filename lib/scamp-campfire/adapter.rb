@@ -16,6 +16,14 @@ class Scamp
         end
       end
 
+      def ignore_self?
+        @opts[:ignore_self] || false
+      end
+
+      def user
+        
+      end
+
       private
         def rooms
           @opts[:rooms].map do |room|
