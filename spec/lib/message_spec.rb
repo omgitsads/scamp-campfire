@@ -1,13 +1,83 @@
 require 'spec_helper'
 
 describe Scamp::Campfire::Message do
-  describe ".valid?" do
-    let(:adapter) { Scamp::Campfire::Adapter.new stub }
-    let(:room) { stub(:id => 1234, :name => "Room") }
-    let(:user) { stub(:id => 1234, :name => "User") }
-    let(:body) { "Hello" }
-    let(:message) { Scamp::Campfire::Message.new(adapter, :body => body, :room => room, :user => user) }
+  let(:adapter) { Scamp::Campfire::Adapter.new stub }
+  let(:room) { stub(:id => 1234, :name => "Room") }
+  let(:user) { stub(:id => 1234, :name => "User") }
+  let(:body) { "Hello" }
+  let(:message) { Scamp::Campfire::Message.new(adapter, :body => body, :room => room, :user => user) }
 
+  describe ".matches?" do
+    describe "with string trigger" do
+      it "matches with valid trigger" do
+        message.matches?("Hello").should be_true
+      end
+
+      it "does not match with invalid trigger" do
+        message.matches?("Goodbye").should be_false
+      end
+    end
+
+    describe "with regex trigger" do
+      it "matches with valid trigger" do
+        message.matches?(/^Hello/).should be_true
+      end
+
+      it "does not match with invalid trigger" do
+        message.matches?(/^Goodbye/).should be_false
+      end
+    end
+
+    describe "required prefix" do
+      describe "with no prefix" do
+        it "matches" do
+          message.matches?(/^Hello/).should be_true
+        end
+      end
+
+      describe "with string prefix" do
+        let(:adapter) { Scamp::Campfire::Adapter.new stub, :required_prefix => "User: " }
+
+        context "with valid message" do
+          let(:body) { "User: Hello" }
+
+          it "matches" do
+            message.matches?(/^Hello/).should be_true
+          end
+        end
+
+        context "with invalid message" do
+          let(:body) { "Another User: Hello" }
+
+          it "does not match" do
+            message.matches?(/^Hello/).should be_false
+          end
+        end
+      end
+
+      describe "with regex prefix" do
+        let(:adapter) { Scamp::Campfire::Adapter.new stub, :required_prefix => /^User: / }
+
+        context "with valid prefix" do
+          let(:body) { "User: Hello" }
+
+          it "matches" do
+            message.matches?(/^Hello/).should be_true
+          end
+        end
+
+        context "with invalid prefix" do
+          let(:body) { "Another User: Hello" }
+
+          it "does not match" do
+            message.matches?(/^Hello/).should be_false
+          end
+        end
+      end
+    end
+  end
+
+  describe ".valid?" do
     describe "ignore messages from self" do
       let(:adapter) { Scamp::Campfire::Adapter.new stub, :ignore_self => true }
 
@@ -16,7 +86,7 @@ describe Scamp::Campfire::Message do
           adapter.stub(:user).and_return(stub(:id => 1234, :name => "User"))
         end
 
-        it "should not be valid" do
+        it "is not valid" do
           message.valid?().should be_false
         end
       end
@@ -26,15 +96,12 @@ describe Scamp::Campfire::Message do
           adapter.stub(:user).and_return(stub(:id => 5678, :name => "Another User"))
         end
 
-        it "should be valid" do
+        it "is valid" do
           message.valid?().should be_true
         end
       end
     end
 
-    describe "required prefix" do
-
-    end
 
     describe "matching rooms" do
       describe "on no room condition" do

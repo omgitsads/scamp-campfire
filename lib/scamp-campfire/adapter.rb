@@ -16,12 +16,16 @@ class Scamp
         end
       end
 
+      def required_prefix
+        @opts[:required_prefix]
+      end
+
       def ignore_self?
         @opts[:ignore_self] || false
       end
 
       def user
-        
+        connection.me
       end
 
       private
